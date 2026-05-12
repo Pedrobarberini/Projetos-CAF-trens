@@ -1,0 +1,11 @@
+produto_id,nome,categoria,preco_unitario
+201,Notebook,Eletrônicos,2500.00
+202,Smartphone,Eletrônicos,1200.00
+203,Fone de Ouvido,Acessórios,50.00
+204,Monitor,Acessórios,600.00
+205,Teclado,Acessórios,80.00
+206,Mouse,Acessórios,40.00
+207,TV 55 Polegadas,Eletrônicos,3000.00
+208,Cadeira Gamer,Móveis,900.00
+209,Mesa Escritório,Móveis,700.00
+210,Webcam,Acessórios,120.00
