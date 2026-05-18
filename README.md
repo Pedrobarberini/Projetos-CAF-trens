@@ -1,172 +1,169 @@
-# 📊 Projeto de Análise de Vendas com Python
+# 📊 Dashboard de Análise de Vendas
 
-## 📌 Sobre o Projeto
-
-Este projeto tem como objetivo realizar uma análise de dados de vendas utilizando Python, com foco em boas práticas de organização de código, manipulação de dados e geração de insights.
-
-A aplicação simula um pipeline de dados completo, desde a leitura de arquivos brutos até a geração de métricas de negócio (KPIs).
+> Pipeline de dados completo com ETL, cálculo de KPIs e dashboard interativo construído com Streamlit e Plotly.
 
 ---
 
-## 🎯 Objetivos
+## 🧩 Sobre o Projeto
+![alt text](image.png)
 
-* Praticar manipulação de dados com **Pandas** e **NumPy**
-* Estruturar um projeto de dados de forma profissional
-* Criar um pipeline de dados (ETL simplificado)
-* Gerar métricas relevantes para tomada de decisão
+Este projeto simula um ambiente real de análise de dados de vendas, cobrindo todas as etapas de um pipeline de dados — desde a leitura de arquivos brutos até a exibição de métricas e gráficos interativos em um dashboard.
+
+Desenvolvido com foco em boas práticas de engenharia de dados, organização modular de código e visualização profissional.
 
 ---
 
-## 🧠 Funcionalidades
+## 🚀 Funcionalidades
 
-✔ Leitura de dados CSV
-✔ Limpeza e tratamento de dados
-✔ Integração de múltiplas tabelas (merge)
-✔ Criação de variáveis de negócio
-✔ Cálculo de KPIs
-✔ Exportação de dados processados
+- ✅ Leitura de dados a partir de arquivos CSV
+- ✅ Limpeza e tratamento de dados (duplicatas, nulos, tipos)
+- ✅ Integração de múltiplas tabelas via merge (pedidos, produtos, clientes)
+- ✅ Criação de variáveis derivadas (valor total, custo, lucro)
+- ✅ Cálculo de KPIs de negócio
+- ✅ Exportação dos dados processados em CSV
+- ✅ Dashboard interativo com filtros por mês e estado
+
+---
+
+## 🗂️ Estrutura do Projeto
+
+```
+Projetos-CAF-trens/
+│
+├── data/
+│   ├── raw/                    # Dados brutos de entrada
+│   │   ├── clientes.csv
+│   │   ├── pedidos.csv
+│   │   └── produtos.csv
+│   └── processed/              # Dados gerados após o pipeline
+│       ├── dados_limpos.csv
+│       ├── dados_processados.csv
+│       └── dados_integrados.csv
+│
+├── src/
+│   └── analise_vendas/
+│       ├── data_loading.py     # Leitura dos CSVs
+│       ├── data_cleaning.py    # Limpeza dos dados
+│       ├── data_processing.py  # Integração e criação de variáveis
+│       ├── analysis.py         # Cálculo de KPIs
+│       └── visualization.py   # Dashboard Streamlit + Plotly
+│
+├── reports/                    # Relatórios gerados
+├── build/                      # Executável compilado (PyInstaller)
+├── main.py                     # Entry point da aplicação
+├── requirements.txt
+├── pyptoject.toml
+└── build.bat                   # Script de build para Windows
+```
 
 ---
 
 ## 🔄 Pipeline de Dados
 
-O fluxo do projeto segue as seguintes etapas:
-
 ```
-Dados Brutos → Limpeza → Processamento → Análise → Output
+CSV Brutos → Limpeza → Integração → Variáveis → KPIs → Dashboard
 ```
 
-### Etapas:
+**1. Carregamento** — leitura dos arquivos `clientes.csv`, `pedidos.csv` e `produtos.csv`
 
-1. **Carregamento**
+**2. Limpeza** — remoção de duplicatas, tratamento de nulos e conversão de tipos
 
-   * Leitura dos arquivos CSV
+**3. Integração** — merge entre pedidos, produtos e clientes em um único DataFrame
 
-2. **Limpeza**
+**4. Criação de variáveis** — extração de ano/mês/dia e cálculo de `valor_total`, `custo_total` e `lucro`
 
-   * Remoção de duplicados
-   * Tratamento de valores nulos
-   * Padronização de dados
+**5. KPIs** — receita total, lucro total e ticket médio
 
-3. **Processamento**
-
-   * Merge entre tabelas
-   * Criação de colunas:
-
-     * valor_total
-     * custo_total
-     * lucro
-
-4. **Análise**
-
-   * Cálculo de KPIs
-
-5. **Exportação**
-
-   * Salvamento dos dados tratados
+**6. Dashboard** — visualização interativa com filtros dinâmicos
 
 ---
-### Etapas de alteração de dados:
 
-projeto-analise-vendas\data\raw
+## 📐 Schema dos Dados
 
--clientes.csv
--pedidos.csv
--produtos.csv
+| Arquivo | Colunas |
+|---|---|
+| `clientes.csv` | `cliente_id`, `nome`, `cidade`, `estado` |
+| `pedidos.csv` | `pedido_id`, `cliente_id`, `produto_id`, `data_pedido`, `quantidade`, `preco_custo`, `desconto`, `frete` |
+| `produtos.csv` | `produto_id`, `nome`, `categoria`, `preco_unitario` |
 
-parametro de dados:
-
-cliente : cliente_id,nome,cidade,estado
-
-pedidos : pedido_id,cliente_id,produto_id,data_pedido,quantidade,preco_custo,desconto,frete
-
-produtos : produto_id,nome,categoria,preco_unitario
 ---
 
-## 📊 KPIs Gerados
+## 📊 KPIs e Gráficos
 
-O projeto calcula as seguintes métricas:
+**Métricas exibidas no dashboard:**
 
-* 💰 Receita total
-* 📈 Lucro total
-* 🧾 Ticket médio
+| KPI | Descrição |
+|---|---|
+| Receita Total | Soma de `quantidade × preco_unitario` |
+| Lucro Total | Receita menos custo total |
+| Ticket Médio | Receita dividida pelo número de pedidos |
+| Pedidos | Quantidade de pedidos únicos |
+| Clientes | Clientes distintos |
+| Produtos | Produtos distintos |
+| Categorias | Categorias de produtos |
 
-Exemplo de saída:
+**Gráficos:**
 
-```
-{
-  "receita_total": 31670.0,
-  "lucro_total": 10720.0,
-  "ticket_medio": 1583.5
-}
-```
+- 📅 Receita por Mês (barras)
+- 🗺️ Receita por Estado (barras)
+- 🍩 Receita por Categoria (donut) — filtrado dinamicamente por mês e estado
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-* Python 3
-* Pandas
-* NumPy
-* mapplotlib
+| Tecnologia | Uso |
+|---|---|
+| Python 3.10+ | Linguagem principal |
+| Pandas | Manipulação de dados |
+| NumPy | Operações numéricas |
+| Streamlit | Interface do dashboard |
+| Plotly | Gráficos interativos |
+| PyInstaller | Geração de executável |
+
 ---
 
-## ▶️ Como Executar o Projeto
+## ▶️ Como Executar
 
 ### 1. Clonar o repositório
 
-```
-git clone https://github.com/Pedrobarberini/Treinamento-Python.git
-```
-
-### 2. Acessar a pasta
-
-```
-cd Treinamento-Python
+```bash
+git clone https://github.com/Pedrobarberini/Projetos-CAF-trens.git
+cd Projetos-CAF-trens
 ```
 
-### 3. Instalar dependências
+### 2. Instalar dependências
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
-### 4. Executar o projeto
+### 3. Executar o pipeline e abrir o dashboard
 
-```
-python main.py
-```
-
----
-
-## 📂 Saídas do Projeto
-
-Após a execução, os arquivos serão gerados em:
-
-```
-data/processed/
+```bash
+streamlit run src/main.py
 ```
 
-Exemplo:
+> Os dados processados serão salvos automaticamente em `data/processed/`.
 
-* dados_limpos.csv
-* dados_completos.csv
+### 4. (Opcional) Gerar executável para Windows
+
+```bash
+build.bat
+```
+
+O executável será gerado em `build/PAV/`.
 
 ---
 
 ## 📈 Possíveis Melhorias
 
-* Criação de dashboards com gráficos
-* Análises por estado e categoria
-* Automação do pipeline
-* Integração com banco de dados
-* Testes automatizados
-
----
-
-## 💼 Sobre o Projeto
-
-Este projeto foi desenvolvido com foco em aprendizado prático e simulação de um ambiente real de análise de dados, seguindo boas práticas de engenharia de dados e organização de código.
+- [ ] Testes automatizados com `pytest`
+- [ ] Integração com banco de dados (PostgreSQL / SQLite)
+- [ ] Deploy do dashboard via Streamlit Cloud
+- [ ] Análise preditiva de vendas com `scikit-learn`
+- [ ] Suporte a múltiplos formatos de entrada (Excel, JSON)
+- [ ] CI/CD com GitHub Actions
 
 ---
 
@@ -174,15 +171,9 @@ Este projeto foi desenvolvido com foco em aprendizado prático e simulação de 
 
 **Pedro Barberini**
 
-* GitHub: https://github.com/Pedrobarberini
-* Portfólio: https://pedrobarberini.github.io/Curriculo/
+- GitHub: [github.com/Pedrobarberini](https://github.com/Pedrobarberini)
+- Portfólio: [pedrobarberini.github.io/Curriculo](https://pedrobarberini.github.io/Curriculo/)
 
 ---
 
-## ⭐ Considerações Finais
-
-Este projeto representa a evolução prática no uso de Python para análise de dados, cobrindo desde conceitos básicos até a construção de um pipeline estruturado.
-
----
-
-[1]: https://docs.github.com/pt/actions/tutorials/build-and-test-code/python?utm_source=chatgpt.com "Criar e testar o Python - Documentos do GitHub"
+> Projeto desenvolvido para fins de aprendizado prático em engenharia e análise de dados com Python.
