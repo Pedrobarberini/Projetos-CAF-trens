@@ -1,7 +1,6 @@
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-from streamlit_plotly_events import plotly_events
 
 COLORS = {
     "accent":  "#00e5ff",
@@ -200,7 +199,6 @@ h1 {
   to   { opacity: 1; transform: scale(1); }
 }
 
-/* Botão limpar filtro */
 .stButton > button {
   background: rgba(0,229,255,0.08) !important;
   border: 1px solid rgba(0,229,255,0.3) !important;
@@ -241,7 +239,7 @@ def plot_kpis(kpis, df):
         unsafe_allow_html=True,
     )
 
-    # ── KPIs linha 1 ──
+    # KPIs linha 1
     col1, col2, col3 = st.columns(3)
     col1.metric("Receita Total", f"R$ {receita:,.2f}")
     col2.metric("Lucro Total",   f"R$ {lucro:,.2f}")
@@ -249,7 +247,7 @@ def plot_kpis(kpis, df):
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── KPIs linha 2 ──
+    # KPIs linha 2
     col4, col5, col6, col7 = st.columns(4)
     col4.metric("Pedidos",    df["pedido_id"].nunique())
     col5.metric("Clientes",   df["cliente_id"].nunique())
@@ -258,16 +256,15 @@ def plot_kpis(kpis, df):
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Meses ──
+    # Meses
     meses = {
         1:"Jan", 2:"Fev", 3:"Mar", 4:"Abr",
         5:"Mai", 6:"Jun", 7:"Jul", 8:"Ago",
         9:"Set", 10:"Out", 11:"Nov", 12:"Dez",
     }
-    meses_inv = {v: k for k, v in meses.items()}  # {"Jan": 1, "Fev": 2, ...}
+    meses_inv = {v: k for k, v in meses.items()} 
 
-    # ── Gráfico: Receita por Mês ──
-
+    # Gráfico: Receita por Mês 
     receita_mes = (
         df.groupby("mes")["valor_total"]
         .sum()
@@ -279,17 +276,16 @@ def plot_kpis(kpis, df):
         receita_mes,
         x="mes",
         y="valor_total",
-        title="Receita por Mês  —  clique para filtrar",
+        title="Receita por Mês",
         color="mes",
         color_discrete_sequence=PALETTE,
         category_orders={"mes": list(meses.values())},
         labels={"mes": "", "valor_total": "Valor Total"},
     )
-    print(receita_mes["valor_total"])  # Debug: verificar dados antes de plotar
     _bar_style(fig_mes)
     _apply_layout(fig_mes, extra={"showlegend": False})
 
-    # ── Gráfico: Receita por Estado ──
+    # Gráfico: Receita por Estado 
     receita_estado = (
         df.groupby("estado")["valor_total"]
         .sum()
@@ -308,49 +304,54 @@ def plot_kpis(kpis, df):
     _bar_style(fig_estado)
     _apply_layout(fig_estado, extra={"showlegend": False})
 
-    # ── Linha 1: fig_mes (clicável) + fig_estado ──
+    # Linha 1: Receita por Mês + Receita por Estado
     cols_top = st.columns(2)
+    cols_top[0].plotly_chart(fig_mes,    use_container_width=True, key="grafico_mes")
+    cols_top[1].plotly_chart(fig_estado, use_container_width=True, key="grafico_estado")
 
-    with cols_top[0]:
-        # Define largura total via layout do fig antes de renderizar
-        fig_mes.update_layout(width=None)
-        clicked = plotly_events(
-            fig_mes,
-            click_event=True,
-            key="click_mes",
-        )
-        # Toggle: clicar no mesmo mês remove o filtro
-        if clicked:
-            mes_clicado = clicked[0]["x"]
-            if st.session_state.get("filtro_mes") == mes_clicado:
-                st.session_state.pop("filtro_mes", None)
-            else:
-                st.session_state["filtro_mes"] = mes_clicado
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    cols_top[1].plotly_chart(fig_estado, use_container_width=True)
+    # Filtro por mês via selectbox
+    estados_disponiveis = ["Todos"] + sorted(df["estado"].unique().tolist())
 
-    # ── Indicador de filtro ativo + botão de reset ──
-    mes_sel = st.session_state.get("filtro_mes", None)
+    col_mes, col_estado = st.columns(2)
 
-    if mes_sel:
-        col_info, col_btn = st.columns([5, 1])
-        col_info.markdown(
-            f"<p style='color:#00e5ff; font-size:0.85rem; margin:0.5rem 0'>"
-            f"🔍 Filtrando por: <strong>{mes_sel}</strong></p>",
-            unsafe_allow_html=True,
-        )
-        with col_btn:
-            if st.button("✕ Limpar filtro"):
-                st.session_state.pop("filtro_mes", None)
-                st.rerun()
+    meses_disponiveis = ["Todos"] + [
+        meses[m] for m in sorted(df["mes"].astype(int).unique())
+    ]
 
-        df_filtrado = df[df["mes"] == meses_inv[mes_sel]]
-        titulo_cat  = f"Receita por Categoria — {mes_sel}"
+    mes_sel = col_mes.selectbox(
+        "Filtrar por mês:",
+        options=meses_disponiveis,
+        index=0,
+        key="filtro_mes_select",
+    )
+    estado_sel = col_estado.selectbox(
+        "Filtrar por estado:",
+        options=estados_disponiveis,
+        index=0,
+        key="filtro_estado_select",
+    )    
+
+    # Aplica filtro 
+    df_filtrado = df.copy()
+
+    if mes_sel != "Todos":
+        mes_num     = meses_inv[mes_sel]
+        df_filtrado = df[df["mes"].astype(int) == mes_num]
     else:
         df_filtrado = df
-        titulo_cat  = "Receita por Categoria — Todos os Meses"
 
-    # ── Gráfico: Donut filtrado ──
+    if estado_sel != "Todos":
+        df_filtrado = df_filtrado[df_filtrado["estado"] == estado_sel]
+
+    # Título dinâmico para o gráfico de categorias
+    partes = []
+    if mes_sel != "Todos": partes.append(mes_sel)
+    if estado_sel != "Todos": partes.append(estado_sel)
+    titulo_cat = "Receita por Categoria - " + ", ".join(partes) if partes else "Receita por Categoria - Todos os meses e estados"
+
+    # Gráfico: Donut filtrado
     receita_categoria = (
         df_filtrado.groupby("categoria")["valor_total"]
         .sum()
@@ -370,5 +371,4 @@ def plot_kpis(kpis, df):
         marker=dict(line=dict(color=COLORS["bg"], width=2)),
     )
     _apply_layout(fig_categoria)
-
-    st.plotly_chart(fig_categoria, use_container_width=True)
+    st.plotly_chart(fig_categoria, use_container_width=True, key="chart_categoria")
